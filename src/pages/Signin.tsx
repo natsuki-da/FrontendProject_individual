@@ -1,7 +1,7 @@
 import { Container } from "react-bootstrap"
 import Dog from "/icons/dog.svg"
 
-function Signin (){
+export function Signin (){
     return (
         <Container>
             <div className="sign-log-in">
@@ -15,5 +15,3 @@ function Signin (){
         </Container>
     )
 }
-
-export default Signin
