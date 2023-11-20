@@ -4,6 +4,10 @@ import mysql from "mysql";
 import bcrypt from "bcryptjs";
 import cors from "cors";
 import bodyParser from "body-parser";
+import jwt from "jsonwebtoken";
+import cookieParser from "cookie-parser";
+
+import verifyToken from "./utills/verifyToken.js"
 
 const Port = 5000;
 
@@ -16,6 +20,7 @@ const pool = mysql.createPool({
 });
 
 //Middlewares
+app.use(cookieParser());
 app.use(express.json());
 app.use(cors());
 app.use(bodyParser.urlencoded({extended: true}));
@@ -102,27 +107,53 @@ app.post("/api/auth/signup", (req, res) =>{
     const username = req.body.username;
     const email = req.body.email;
     const password = hash;
+    console.log(username)
     pool.query("INSERT INTO users(username, email, password) VALUES (?, ?, ?)", [username, email, password], (err, result) => {
         if (err) throw err;
+        
         res.status(200).send("Used has been created.");
     });
     });
 
-//Sign in (Login)
+//Login
+// app.get("/api/auth/signin", (req, res) =>{
+//     const email = req.body.email
+//     const password = req.body.password
+//     if (email && password){
+//         pool.query("SELECT username, email, password FROM users WHERE email = ?", [email], (err, result) => {
+//             // if (bcrypt.compareSync(password, result[0].password)) {return res.send("Successful");
+//             if (bcrypt.compareSync(password, result[0].password)) {return res.send(result);
+//         } else {
+//             res.send("Incorrect Email and/or Password!");
+//         } 
+//         res.end(); 
+//         })
+//     }
+// });
+
 app.get("/api/auth/signin", (req, res) =>{
     const email = req.body.email
-    const password = req.body.password
-    if (email && password){
-        pool.query("SELECT username, email, password FROM users WHERE email = ?", [email], (err, result) => {
-            // if (bcrypt.compareSync(password, result[0].password)) {return res.send("Successful");
-            if (bcrypt.compareSync(password, result[0].password)) {return res.send(result);
+    const password = req.body.password;
+    pool.query ("SELECT id, username, email, password, isAdmin FROM users WHERE email = ?", [email], (err, result) => {
+        if (email !== result[0].email) { 
+            res.status(401).send("A user with this email could not be found.");
         } else {
-            res.send("Incorrect Email and/or Password!");
-        } 
-        res.end(); 
-        })
-    }
+            // const storedUser = result[0];
+            const isEqual = bcrypt.compareSync(password, result[0].password);
+            if (!isEqual){
+                res.status(401).send("Wrong password!")
+            // } else {
+            //     res.send(result[0].email)
+            //     // res.send(`${storedUser}`)
+            // }
+            } else {
+                const token = jwt.sign({ id: result[0].id, isAdmin: result[0].isAdmin}, "secretfortoken", {expiresIn: "1h"});
+                res.cookie("access_token", token, {httpOnly: true}).status(200).send("You are authenticated.");
+            }
+        }
+    })
 });
+
 
 //Update user
 app.put("/api/auth/put/:id", (req, res) =>{
@@ -130,7 +161,8 @@ app.put("/api/auth/put/:id", (req, res) =>{
     const username = req.body.username;
     const email = req.body.email;
     const password = req.body.password;
-    pool.query("UPDATE users SET username = ?, email = ?, password = ? WHERE id = ?", [username, email, password, id], (err, result) => {
+    const isAdmin = req.body.isAdmin;
+    pool.query("UPDATE users SET username = ?, email = ?, password = ?, isAdmin = ? WHERE id = ?", [username, email, password, isAdmin, id], (err, result) => {
         if (err) throw err;
         res.send(result);
     });
@@ -138,7 +170,7 @@ app.put("/api/auth/put/:id", (req, res) =>{
 
 //Get users
 app.get("/api/auth/get", (req, res) => {
-    pool.query("SELECT id, username, email, password FROM users", (err, users) => {
+    pool.query("SELECT id, username, email, password, isAdmin FROM users", (err, users) => {
         if(err) throw err;
         res.send(users);
     })
@@ -159,4 +191,9 @@ app.delete("/api/auth/delete/:id", (req, res) =>{
         if (err) throw err;
         res.send("deleted");
     });
+});
+
+//Verify token
+app.get("/api/auth/signin/checkauthentication", verifyToken, (req, res, next) => {
+    res.send("Hello user, you are logged in.")
 });
