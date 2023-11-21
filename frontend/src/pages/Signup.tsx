@@ -9,7 +9,8 @@ export function Signup (){
     const [userPassword, setPassword] = useState("");
 
     //Register user via API
-    const register = () => {
+    const register = (e: React.FormEvent) => {
+        e.preventDefault();
         // console.log("hej")
         axios.post("http://localhost:5000/api/auth/signup", {
             username: userName, 
