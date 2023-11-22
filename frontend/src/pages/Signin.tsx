@@ -2,26 +2,28 @@ import { Container } from "react-bootstrap"
 import Dog from "/icons/dog.svg"
 import axios from "axios"
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export function Signin (){
     const [userEmail, setEmail] = useState("");
     const [userPassword, setPassword] = useState("");
+    const navigate = useNavigate();
     
-    const login = () => {
-        const r = axios.get("http://localhost:5000/api/auth/signin",
+    const login = (e: React.FormEvent) => {
+        e.preventDefault();
+        axios.get("http://localhost:5000/api/auth/signin",
             {
                 params: {
                     email: userEmail,
                     password: userPassword
                 }
             })
-        
+        .then(()=> navigate("/home-loggedin"))
     };
 
     return (
 
         <Container>
-            <div>{r.data}</div>
             <div className="sign-log-in">
                 <div><img src={Dog} height="100px" alt="logo_dog" /></div>
                 <div className="title">Sign in</div>

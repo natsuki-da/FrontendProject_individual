@@ -2,11 +2,14 @@ import { Container } from "react-bootstrap"
 import Dog from "/icons/dog.svg"
 import axios from "axios";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 
 export function Signup (){
     const [userName, setUsername] = useState("");
     const [userEmail, setEmail] = useState("");
     const [userPassword, setPassword] = useState("");
+    const navigate = useNavigate();
 
     //Register user via API
     const register = (e: React.FormEvent) => {
@@ -17,7 +20,7 @@ export function Signup (){
             email: userEmail, 
             password: userPassword,
         })
-
+        .then(()=> navigate("/home-loggedin"))
     };
 
     return (
