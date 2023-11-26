@@ -7,7 +7,7 @@ import bodyParser from "body-parser";
 import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
 
-import verifyToken from "./utills/verifyToken.js"
+import {verifyToken, verifyUser, verifyAdmin} from "./utills/verifyToken.js"
 
 const Port = 5000;
 
@@ -107,11 +107,11 @@ app.post("/api/auth/signup", (req, res) =>{
     const username = req.body.username;
     const email = req.body.email;
     const password = hash;
-    console.log(username)
+    // console.log(username)
     pool.query("INSERT INTO users(username, email, password) VALUES (?, ?, ?)", [username, email, password], (err, result) => {
         if (err) throw err;
-        
-        res.status(200).send("Used has been created.");
+        // res.status(200).send("User has been created.")
+    
     });
     });
 
@@ -135,10 +135,11 @@ app.get("/api/auth/signin", (req, res) =>{
     const email = req.body.email
     const password = req.body.password;
     pool.query ("SELECT id, username, email, password, isAdmin FROM users WHERE email = ?", [email], (err, result) => {
-        if (email !== result[0].email) { 
+        if (result.length <= 0) { 
             res.status(401).send("A user with this email could not be found.");
         } else {
             // const storedUser = result[0];
+            //console.log(storedUser);
             const isEqual = bcrypt.compareSync(password, result[0].password);
             if (!isEqual){
                 res.status(401).send("Wrong password!")
@@ -148,7 +149,7 @@ app.get("/api/auth/signin", (req, res) =>{
             // }
             } else {
                 const token = jwt.sign({ id: result[0].id, isAdmin: result[0].isAdmin}, "secretfortoken", {expiresIn: "1h"});
-                res.cookie("access_token", token, {httpOnly: true}).status(200).send("You are authenticated.");
+                res.cookie("access_token", token, {httpOnly: true}).status(200).send("You are logged in.");
             }
         }
     })
@@ -193,7 +194,27 @@ app.delete("/api/auth/delete/:id", (req, res) =>{
     });
 });
 
-//Verify token
+//Login + Verify token 
 app.get("/api/auth/signin/checkauthentication", verifyToken, (req, res, next) => {
     res.send("Hello user, you are logged in.")
 });
+
+//Login + Verify token and user 
+app.get("/api/auth/signin/checkuser/:id", verifyUser, (req, res, next) => {
+    res.send("Hello user, you are logged in and you can delete your account.")
+});
+
+//Login + Verify token, user and admin
+app.get("/api/auth/signin/checkadmin", verifyAdmin, (req, res, next) => {
+    res.send("Hello admin, you are logged in and you can delete all accounts.")
+});
+
+
+/* Get searched property */
+app.get("/api/get/search/:city", (req, res) => {
+    const city = req.params.city
+    pool.query("SELECT * FROM properties WHERE city = ?", [city], (err, result) => {
+        if (err) throw err;
+        res.send(result);
+    })
+})
