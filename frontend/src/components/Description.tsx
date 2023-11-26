@@ -2,7 +2,7 @@ import { Col, Container, Row } from "react-bootstrap";
 
 export function Description (){
     return (
-        <Container className="detail-block">
+        <Container className="detail-block-left">
             <Row>
                 <Col xs={8} md={8} lg={7} className="descrip">
                     <h3>Pocono Mountain KOA</h3>

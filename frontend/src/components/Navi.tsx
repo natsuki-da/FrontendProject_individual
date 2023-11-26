@@ -7,13 +7,13 @@ export function Navi (){
     return (
         <Navbar sticky="top" className="bg-white shadow-sm mb-5 p-4">
             <Container> 
-                <div><img src={Logo} height="50px" alt="logo"/></div>
+                <div><a href="/"><img src={Logo} height="50px" alt="logo"/></a></div>
                 <div className="pe-auto">
                     <img src={Human} />
                     {/* <Nav.Link as={NavLink} to={"/signin"}>Sign in</Nav.Link>
-                    <Nav.Link as={NavLink} to={"/signup"}>Sign up</Nav.Link>
-                    <a href="#">Sign in</a>
-                    <a href="#"> / Sign up</a> */}
+                    <Nav.Link as={NavLink} to={"/signup"}>Sign up</Nav.Link> */}
+                    <a href="/signin" className="hyperlink">Sign in</a>
+                    <a href="/signup" className="hyperlink"> / Sign up</a>
                 </div>
             </Container>
         </Navbar>

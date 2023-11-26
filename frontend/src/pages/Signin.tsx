@@ -8,7 +8,7 @@ export function Signin (){
     const [userEmail, setEmail] = useState("");
     const [userPassword, setPassword] = useState("");
     const navigate = useNavigate();
-    
+
     const login = (e: React.FormEvent) => {
         e.preventDefault();
         axios.get("http://localhost:5000/api/auth/signin",
@@ -18,7 +18,8 @@ export function Signin (){
                     password: userPassword
                 }
             })
-        .then(()=> navigate("/home-loggedin"))
+        // .then(()=> navigate("/login-success"))
+        navigate("/login-success")
     };
 
     return (
@@ -32,7 +33,7 @@ export function Signin (){
                     <input className="input" type="password" placeholder="Password" onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {setPassword(e.target.value);}}/>
                     <button className="button">Sign in</button>
                 </form>
-                <div className="message  pe-auto">Not a member? <a href="#">Sign up</a></div>
+                <div className="message  pe-auto">Not a member? <a href="/signup">Sign up</a></div>
             </div>
         </Container>
     )

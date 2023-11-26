@@ -14,13 +14,14 @@ export function Signup (){
     //Register user via API
     const register = (e: React.FormEvent) => {
         e.preventDefault();
-        // console.log("hej")
+        console.log("hej")
         axios.post("http://localhost:5000/api/auth/signup", {
             username: userName, 
             email: userEmail, 
             password: userPassword,
         })
-        .then(()=> navigate("/home-loggedin"))
+        // .then(()=> navigate("/login-success"))
+        navigate("/create-success")
     };
 
     return (
@@ -34,7 +35,7 @@ export function Signup (){
                     <input className="input" type="password" placeholder="Password" onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>{setPassword(e.target.value);}} required/>
                     <button className="button">Sign up</button>
                 </form>
-                <div className="message  pe-auto">Already a member? <a href="#">Sign in</a></div>
+                <div className="message  pe-auto">Already a member? <a href="signin">Sign in</a></div>
             </div>
         </Container>
     )
